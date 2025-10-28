@@ -1,0 +1,2 @@
+run_id,seed,map,agents_total,batch_size,makespan,wall_clock_s,tiles,tile_cap,prefer_near,hot_threshold,hot_min_per_wave,tail_pack,relax_threshold,early_break_slack,timeout
+N100_bs100_near,320,extern/LaCAM/smaller_batches/32x32_allEntry.map,50,50,2152,1.265,4,50,1,3,50,20,20,2,

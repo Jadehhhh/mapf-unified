@@ -1,82 +1,61 @@
 cmake_minimum_required(VERSION 3.16)
+project(mapf_unified_all CXX)
 
-# Parent project that just orchestrates subprojects
-project(mapf_unified LANGUAGES CXX)
-
-# Use a modern C++ standard; subprojects can override if they want
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Put all built executables in the top-level build/ folder
-# (Subprojects may have their own defaults; we’ll override per-target below.)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+# 根 include（放 Args.h 等可选）
+if(EXISTS "${CMAKE_SOURCE_DIR}/include")
+  include_directories("${CMAKE_SOURCE_DIR}/include")
+endif()
 
-# ------------------------------------------------------------------------------
-# Add the two original projects EXACTLY as they are.
-# This avoids re-compiling their sources ourselves (no *.c vs *.cpp issues, etc.).
-# ------------------------------------------------------------------------------
-add_subdirectory(extern/LaCAM)
+# ===== macOS only: 解决 <utility>/<array> 头找不到问题 =====
+if(APPLE)
+  if(NOT DEFINED OSX_SYSROOT)
+    execute_process(
+      COMMAND xcrun --sdk macosx --show-sdk-path
+      OUTPUT_VARIABLE OSX_SYSROOT
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+  endif()
+  if(OSX_SYSROOT)
+    message(STATUS "Using macOS SDK: ${OSX_SYSROOT}")
+    add_compile_options(-isysroot ${OSX_SYSROOT} -stdlib=libc++)
+    add_link_options(   -isysroot ${OSX_SYSROOT} -stdlib=libc++)
+    include_directories(SYSTEM
+      "${OSX_SYSROOT}/usr/include/c++/v1"
+      "/Library/Developer/CommandLineTools/usr/include/c++/v1"
+    )
+  else()
+    message(WARNING "未能探测到 macOS SDK，若出现 <utility>/<array> 缺失，请传 -DOSX_SYSROOT=/path/to/sdk")
+  endif()
+  if(NOT DEFINED CMAKE_OSX_ARCHITECTURES)
+    set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "" FORCE)
+  endif()
+endif()
+
+# ===== 子仓: LaCAM（内部 CMake 定义了 add_library(lacam) + add_executable(lacam_bridge ...)）=====
+add_subdirectory(extern/LaCAM/lacam)
+
+# 不改名！仅把可执行输出目录设为 ./build/lacam/lacam_bridge
+if(TARGET lacam_bridge)
+  set_target_properties(lacam_bridge PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lacam"
+  )
+  # 根 include（若需要 Args.h）
+  if(EXISTS "${CMAKE_SOURCE_DIR}/include")
+    target_include_directories(lacam_bridge PRIVATE "${CMAKE_SOURCE_DIR}/include")
+  endif()
+endif()
+
+# ===== 子仓: RHCR（内部 CMake 里 add_executable(lifelong ...)）=====
 add_subdirectory(extern/RHCR)
 
-# ------------------------------------------------------------------------------
-# Figure out the LaCAM executable target name from its original CMake.
-# Common names we’ve seen: "driver" or "lacam".
-# If yours is different, tweak the list below or open extern/LaCAM/CMakeLists.txt
-# and check the name used in add_executable(<NAME> ...).
-# ------------------------------------------------------------------------------
-set(_LACAM_CANDIDATES driver lacam LaCAM lacam_cli)
-set(LACAM_TARGET "")
-foreach(name IN LISTS _LACAM_CANDIDATES)
-  if (TARGET ${name})
-    set(LACAM_TARGET ${name})
-    break()
-  endif()
-endforeach()
-
-if (LACAM_TARGET STREQUAL "")
-  message(FATAL_ERROR
-    "Could not find LaCAM executable target. "
-    "Open extern/LaCAM/CMakeLists.txt and tell me the add_executable target name, "
-    "then add it to _LACAM_CANDIDATES.")
+# lifelong 放到 ./build/lifelong
+if(TARGET lifelong)
+  set_target_properties(lifelong PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+  )
 endif()
-
-# Normalize LaCAM executable name & output dir:
-set_target_properties(${LACAM_TARGET} PROPERTIES
-  OUTPUT_NAME              "lacam"            # final name: ./build/lacam
-  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-
-# ------------------------------------------------------------------------------
-# Figure out the RHCR executable target name.
-# From your snippet, RHCR already uses: add_executable(lifelong ...).
-# We still detect and normalize output path just in case.
-# ------------------------------------------------------------------------------
-set(_RHCR_CANDIDATES lifelong rhcr RHCR)
-set(RHCR_TARGET "")
-foreach(name IN LISTS _RHCR_CANDIDATES)
-  if (TARGET ${name})
-    set(RHCR_TARGET ${name})
-    break()
-  endif()
-endforeach()
-
-if (RHCR_TARGET STREQUAL "")
-  message(FATAL_ERROR
-    "Could not find RHCR executable target. "
-    "Open extern/RHCR/CMakeLists.txt and tell me the add_executable target name, "
-    "then add it to _RHCR_CANDIDATES.")
-endif()
-
-# Normalize RHCR executable output dir (name is already 'lifelong'):
-set_target_properties(${RHCR_TARGET} PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}  # final path: ./build/lifelong
-)
-
-# ------------------------------------------------------------------------------
-# Notes:
-# - We don’t add Boost here; each subproject’s own CMake should find whatever it needs.
-# - Python files inside extern/ are ignored by CMake, so they won’t affect the build.
-# - If you want RelWithDebInfo by default, uncomment:
-# set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "" FORCE)
-# ------------------------------------------------------------------------------

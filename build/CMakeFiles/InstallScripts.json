@@ -1,0 +1,9 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/jade2021/workspace25/mapf-unified/build/cmake_install.cmake",
+		"/Users/jade2021/workspace25/mapf-unified/build/extern/LaCAM/lacam/cmake_install.cmake",
+		"/Users/jade2021/workspace25/mapf-unified/build/extern/RHCR/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
