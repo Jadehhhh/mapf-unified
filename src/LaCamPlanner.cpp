@@ -1,16 +1,64 @@
-#include "LaCamPlanner.h"
-#include <random>
+#include "Planner.h"
+#include "CsvToScen.h"
+#include <filesystem>
+#include <cstdlib>
 #include <iostream>
 
-bool LaCamPlanner::run(const LaCAMArgs& a){
-  std::mt19937 rng(a.seed_assign);
-  if(a.verbose>=2) {
-    std::cout << "[LaCAM] map="<<a.map_path
-              << " task="<<a.task_csv
-              << " agents="<<a.agents
-              << " batch_size="<<a.batch_size
-              << " seed_assign="<<a.seed_assign << "\n";
+struct LaCAMPlanner final : Planner {
+  int plan(const RunOptions& o) override {
+    std::string bridge = o.lacam_bridge.empty()? "./build/lacam/lacam_bridge" : o.lacam_bridge;
+    std::string runner = o.run_batches_py.empty()? "extern/LaCAM/smaller_batches/run_batches.py" : o.run_batches_py;
+    std::string outcsv = o.output_csv.empty()? "results.csv" : o.output_csv;
+
+    if (!std::filesystem::exists(bridge)) {
+      std::cerr << "[LaCAM] lacam_bridge not found: " << bridge << "\n";
+      return 1;
+    }
+    if (!std::filesystem::exists(runner)) {
+      std::cerr << "[LaCAM] run_batches.py not found: " << runner << "\n";
+      return 1;
+    }
+    if (!std::filesystem::exists(o.map_file)) {
+      std::cerr << "[LaCAM] map not found: " << o.map_file << "\n";
+      return 1;
+    }
+    if (!std::filesystem::exists(o.input_task_csv)) {
+      std::cerr << "[LaCAM] csv not found: " << o.input_task_csv << "\n";
+      return 1;
+    }
+
+    // 1) CSV -> 临时 SCEN
+    std::string scen = o.scen_file;
+    if (scen.empty()) {
+      scen = (std::filesystem::temp_directory_path() / "unified_tmp.scen").string();
+    }
+    try {
+      size_t n = csv_to_scen(o.map_file, o.input_task_csv, scen, o.num_agents);
+      if (n==0) { std::cerr << "[LaCAM] empty scen generated\n"; return 1; }
+      std::cerr << "[LaCAM] SCEN generated: " << scen << " ("<<n<<" tasks)\n";
+    } catch (const std::exception& e) {
+      std::cerr << "[LaCAM] CSV->SCEN failed: " << e.what() << "\n";
+      return 1;
+    }
+
+    // 2) 调 Python 批跑器 + bridge
+    std::string cmd =
+      std::string("PYTHONUNBUFFERED=1 python ")
+      + q(runner)
+      + " --map " + q(o.map_file)
+      + " --scen " + q(scen)
+      + " --agents " + std::to_string(o.num_agents)
+      + " --batch-size " + std::to_string(o.batch_size)
+      + " --init-random --seed " + std::to_string(o.seed)
+      + " --bridge-exe " + q(bridge)
+      + " --csv " + q(outcsv)
+      + " --run-id Unified --verbose " + std::to_string(o.verbose)
+      + " --prefer-near";
+
+    std::cerr << "[LaCAM] " << cmd << "\n";
+    int rc = std::system(cmd.c_str());
+    return rc==0 ? 0 : (rc>>8);
   }
-  // TODO: 这里以后接入 LaCAM 的真实批处理/求解
-  return true; // 先返回成功
-}
+};
+
+Planner* makeLaCAM() { return new LaCAMPlanner(); }

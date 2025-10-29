@@ -63,11 +63,13 @@ CMAKE_BINARY_DIR = /Users/jade2021/workspace25/mapf-unified/build
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
+all: CMakeFiles/unified_runner.dir/all
 all: extern/LaCAM/lacam/all
 all: extern/RHCR/all
 .PHONY : all
 
 # The main recursive "codegen" target.
+codegen: CMakeFiles/unified_runner.dir/codegen
 codegen: extern/LaCAM/lacam/codegen
 codegen: extern/RHCR/codegen
 .PHONY : codegen
@@ -78,6 +80,7 @@ preinstall: extern/RHCR/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
+clean: CMakeFiles/unified_runner.dir/clean
 clean: extern/LaCAM/lacam/clean
 clean: extern/RHCR/clean
 .PHONY : clean
@@ -122,6 +125,38 @@ extern/RHCR/preinstall:
 # Recursive "clean" directory target.
 extern/RHCR/clean: extern/RHCR/CMakeFiles/lifelong.dir/clean
 .PHONY : extern/RHCR/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/unified_runner.dir
+
+# All Build rule for target.
+CMakeFiles/unified_runner.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/jade2021/workspace25/mapf-unified/build/CMakeFiles --progress-num=38,39,40,41 "Built target unified_runner"
+.PHONY : CMakeFiles/unified_runner.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/unified_runner.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/jade2021/workspace25/mapf-unified/build/CMakeFiles 4
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/unified_runner.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/jade2021/workspace25/mapf-unified/build/CMakeFiles 0
+.PHONY : CMakeFiles/unified_runner.dir/rule
+
+# Convenience name for target.
+unified_runner: CMakeFiles/unified_runner.dir/rule
+.PHONY : unified_runner
+
+# codegen rule for target.
+CMakeFiles/unified_runner.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/jade2021/workspace25/mapf-unified/build/CMakeFiles --progress-num=38,39,40,41 "Finished codegen for target unified_runner"
+.PHONY : CMakeFiles/unified_runner.dir/codegen
+
+# clean rule for target.
+CMakeFiles/unified_runner.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/clean
+.PHONY : CMakeFiles/unified_runner.dir/clean
 
 #=============================================================================
 # Target rules for target extern/LaCAM/lacam/CMakeFiles/lacam.dir

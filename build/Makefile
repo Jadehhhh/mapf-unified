@@ -117,6 +117,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named unified_runner
+
+# Build rule for target.
+unified_runner: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 unified_runner
+.PHONY : unified_runner
+
+# fast build rule for target.
+unified_runner/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/build
+.PHONY : unified_runner/fast
+
+#=============================================================================
 # Target rules for targets named lacam
 
 # Build rule for target.
@@ -155,6 +168,78 @@ lifelong/fast:
 	$(MAKE) $(MAKESILENT) -f extern/RHCR/CMakeFiles/lifelong.dir/build.make extern/RHCR/CMakeFiles/lifelong.dir/build
 .PHONY : lifelong/fast
 
+src/LaCAMPlanner.o: src/LaCAMPlanner.cpp.o
+.PHONY : src/LaCAMPlanner.o
+
+# target to build an object file
+src/LaCAMPlanner.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/src/LaCAMPlanner.cpp.o
+.PHONY : src/LaCAMPlanner.cpp.o
+
+src/LaCAMPlanner.i: src/LaCAMPlanner.cpp.i
+.PHONY : src/LaCAMPlanner.i
+
+# target to preprocess a source file
+src/LaCAMPlanner.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/src/LaCAMPlanner.cpp.i
+.PHONY : src/LaCAMPlanner.cpp.i
+
+src/LaCAMPlanner.s: src/LaCAMPlanner.cpp.s
+.PHONY : src/LaCAMPlanner.s
+
+# target to generate assembly for a file
+src/LaCAMPlanner.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/src/LaCAMPlanner.cpp.s
+.PHONY : src/LaCAMPlanner.cpp.s
+
+src/RHCRPlanner.o: src/RHCRPlanner.cpp.o
+.PHONY : src/RHCRPlanner.o
+
+# target to build an object file
+src/RHCRPlanner.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/src/RHCRPlanner.cpp.o
+.PHONY : src/RHCRPlanner.cpp.o
+
+src/RHCRPlanner.i: src/RHCRPlanner.cpp.i
+.PHONY : src/RHCRPlanner.i
+
+# target to preprocess a source file
+src/RHCRPlanner.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/src/RHCRPlanner.cpp.i
+.PHONY : src/RHCRPlanner.cpp.i
+
+src/RHCRPlanner.s: src/RHCRPlanner.cpp.s
+.PHONY : src/RHCRPlanner.s
+
+# target to generate assembly for a file
+src/RHCRPlanner.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/src/RHCRPlanner.cpp.s
+.PHONY : src/RHCRPlanner.cpp.s
+
+src/main_unified.o: src/main_unified.cpp.o
+.PHONY : src/main_unified.o
+
+# target to build an object file
+src/main_unified.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/src/main_unified.cpp.o
+.PHONY : src/main_unified.cpp.o
+
+src/main_unified.i: src/main_unified.cpp.i
+.PHONY : src/main_unified.i
+
+# target to preprocess a source file
+src/main_unified.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/src/main_unified.cpp.i
+.PHONY : src/main_unified.cpp.i
+
+src/main_unified.s: src/main_unified.cpp.s
+.PHONY : src/main_unified.s
+
+# target to generate assembly for a file
+src/main_unified.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unified_runner.dir/build.make CMakeFiles/unified_runner.dir/src/main_unified.cpp.s
+.PHONY : src/main_unified.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -166,6 +251,16 @@ help:
 	@echo "... lacam"
 	@echo "... lacam_bridge"
 	@echo "... lifelong"
+	@echo "... unified_runner"
+	@echo "... src/LaCAMPlanner.o"
+	@echo "... src/LaCAMPlanner.i"
+	@echo "... src/LaCAMPlanner.s"
+	@echo "... src/RHCRPlanner.o"
+	@echo "... src/RHCRPlanner.i"
+	@echo "... src/RHCRPlanner.s"
+	@echo "... src/main_unified.o"
+	@echo "... src/main_unified.i"
+	@echo "... src/main_unified.s"
 .PHONY : help
 
 

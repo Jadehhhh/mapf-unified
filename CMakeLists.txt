@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
-project(mapf_unified_all CXX)
+project(unified_runner_proj CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# 根 include（放 Args.h 等可选）
+# 根 include
 if(EXISTS "${CMAKE_SOURCE_DIR}/include")
   include_directories("${CMAKE_SOURCE_DIR}/include")
 endif()
@@ -35,6 +35,19 @@ if(APPLE)
     set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "" FORCE)
   endif()
 endif()
+
+add_executable(unified_runner
+  src/main_unified.cpp
+  src/RHCRPlanner.cpp
+  src/LaCAMPlanner.cpp
+)
+
+# 可执行文件放到 build 根，和你习惯一致
+set_target_properties(unified_runner PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
+
+
 
 # ===== 子仓: LaCAM（内部 CMake 定义了 add_library(lacam) + add_executable(lacam_bridge ...)）=====
 add_subdirectory(extern/LaCAM/lacam)
