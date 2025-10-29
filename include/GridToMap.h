@@ -15,22 +15,22 @@ inline std::vector<std::string> split_csv_line(const std::string& s) {
   return out;
 }
 
-// 输入 .grid（CSV），生成 MovingAI .map，返回 .map 路径；若已是 .map，原样返回
+// input .grid，generate MovingAI .map，return .map path
 inline std::string ensure_map_for_lacam(const std::string& map_or_grid) {
   namespace fs = std::filesystem;
   fs::path p(map_or_grid);
   auto ext = p.extension().string();
 
-  // 已经是 .map，直接用
+  // if it's already .map
   std::string lower_ext = ext;
   std::transform(lower_ext.begin(), lower_ext.end(), lower_ext.begin(), ::tolower);
   if (lower_ext == ".map") return map_or_grid;
 
-  // 不是 .grid 就报错，避免误用
+ // if it's not .grid
   if (lower_ext != ".grid")
     throw std::runtime_error("Unsupported map extension (need .map or .grid): " + map_or_grid);
 
-  // 读取 .grid CSV
+  // read .grid CSV
   std::ifstream fin(map_or_grid);
   if (!fin) throw std::runtime_error("open grid failed: " + map_or_grid);
 
@@ -42,7 +42,7 @@ inline std::string ensure_map_for_lacam(const std::string& map_or_grid) {
   }
   if (rows.size() < 2) throw std::runtime_error("grid too short: " + map_or_grid);
 
-  // 第二行是 H,W（可能是单元格 "H,W"，也可能两个单元格）
+  // the second row can be H,W
   int H=-1, W=-1;
   {
     const auto& r = rows[1];
@@ -59,24 +59,24 @@ inline std::string ensure_map_for_lacam(const std::string& map_or_grid) {
   }
   if (H <= 0 || W <= 0) throw std::runtime_error("invalid H/W in grid header");
 
-  // 初始化全 FREE（与 Python 脚本一致）
+  //initialize
   std::vector<std::string> grid(H, std::string(W, '.'));
 
-  // 从第 4 行开始（索引 3）读取：(_, cell_type, x, y, ...)
+  // read from the fourth row：(_, cell_type, x, y, ...)
   for (size_t i = 3; i < rows.size(); ++i) {
     const auto& r = rows[i];
     if (r.size() < 4) continue;
     std::string cell_type = r[1];
     int x = std::stoi(r[2]);
     int y = std::stoi(r[3]);
-    if (x < 0 || x >= W || y < 0 || y >= H) continue; // 安全越界保护
+    if (x < 0 || x >= W || y < 0 || y >= H) continue; 
 
-    // cell_type == "Obstacle" -> '@'，否则 '.'
+    // cell_type == "Obstacle" -> '@'，else '.'
     if (cell_type == "Obstacle") grid[y][x] = '@';
     else                         grid[y][x] = '.';
   }
 
-  // 写出到临时 .map（放到系统临时目录）
+  // temporary .map
   fs::path out_path = fs::temp_directory_path() / (p.stem().string() + ".map");
   std::ofstream fout(out_path);
   if (!fout) throw std::runtime_error("write map failed: " + out_path.string());

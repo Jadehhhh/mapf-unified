@@ -13,7 +13,7 @@ struct CliArgs {
   std::string rhcr_bin;        // path to lifelong
   std::string lacam_bridge;    // path to lacam_bridge
 
-  std::string map_file;        // for LaCAM batch脚本常见参数
+  std::string map_file;        
   std::string scen_file;
 };
 

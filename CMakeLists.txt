@@ -5,12 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# 根 include
+# add root folder include
 if(EXISTS "${CMAKE_SOURCE_DIR}/include")
   include_directories("${CMAKE_SOURCE_DIR}/include")
 endif()
 
-# ===== macOS only: 解决 <utility>/<array> 头找不到问题 =====
+#can't find <utility>/<array> 
 if(APPLE)
   if(NOT DEFINED OSX_SYSROOT)
     execute_process(
@@ -29,7 +29,7 @@ if(APPLE)
       "/Library/Developer/CommandLineTools/usr/include/c++/v1"
     )
   else()
-    message(WARNING "未能探测到 macOS SDK，若出现 <utility>/<array> 缺失，请传 -DOSX_SYSROOT=/path/to/sdk")
+    message(WARNING "-DOSX_SYSROOT=/path/to/sdk")
   endif()
   if(NOT DEFINED CMAKE_OSX_ARCHITECTURES)
     set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "" FORCE)
@@ -42,31 +42,29 @@ add_executable(unified_runner
   src/LaCAMPlanner.cpp
 )
 
-# 可执行文件放到 build 根，和你习惯一致
+# put executable in the build
 set_target_properties(unified_runner PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
-
-
-# ===== 子仓: LaCAM（内部 CMake 定义了 add_library(lacam) + add_executable(lacam_bridge ...)）=====
+# ===== extern: LaCAM（add_library(lacam) + add_executable(lacam_bridge ...)）=====
 add_subdirectory(extern/LaCAM/lacam)
 
-# 不改名！仅把可执行输出目录设为 ./build/lacam/lacam_bridge
+# set output path to ./build/lacam/lacam_bridge
 if(TARGET lacam_bridge)
   set_target_properties(lacam_bridge PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lacam"
   )
-  # 根 include（若需要 Args.h）
+  # include
   if(EXISTS "${CMAKE_SOURCE_DIR}/include")
     target_include_directories(lacam_bridge PRIVATE "${CMAKE_SOURCE_DIR}/include")
   endif()
 endif()
 
-# ===== 子仓: RHCR（内部 CMake 里 add_executable(lifelong ...)）=====
+# ===== RHCR（add_executable(lifelong ...)）=====
 add_subdirectory(extern/RHCR)
 
-# lifelong 放到 ./build/lifelong
+# put lifelong to ./build/lifelong
 if(TARGET lifelong)
   set_target_properties(lifelong PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"

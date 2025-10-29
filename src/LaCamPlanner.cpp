@@ -19,7 +19,7 @@ struct LaCAMPlanner final : Planner {
       std::cerr << "[LaCAM] run_batches.py not found: " << runner << "\n";
       return 1;
     }
-    // 支持 .grid：自动转 .map
+    // convert .grid to .map
     std::string map_for_lacam;
     try {
      map_for_lacam = ensure_map_for_lacam(o.map_file);
@@ -36,7 +36,7 @@ struct LaCAMPlanner final : Planner {
       return 1;
     }
 
-    // 1) CSV -> 临时 SCEN
+    // convert csv to scen
     std::string scen = o.scen_file;
     if (scen.empty()) {
       scen = (std::filesystem::temp_directory_path() / "unified_tmp.scen").string();

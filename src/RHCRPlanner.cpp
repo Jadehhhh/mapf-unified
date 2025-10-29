@@ -18,7 +18,7 @@ struct RHCRPlanner final : Planner {
       std::cerr << "[RHCR] csv not found: " << o.input_task_csv << "\n";
       return 1;
     }
-    // 贴合你之前用法
+
     std::string cmd =
       q(bin) + " --scenario=ONLINE"
       + " -m " + q(o.map_file)

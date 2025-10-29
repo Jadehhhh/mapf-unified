@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <filesystem>
 
-// 解析 MovingAI .map 的宽高（优先 header width/height，失败则从网格推断）
+//get width and height of map
 inline std::pair<int,int> parse_map_size(const std::string& map_path) {
   std::ifstream fin(map_path);
   if (!fin) throw std::runtime_error("open map failed: " + map_path);
@@ -39,7 +39,7 @@ inline std::pair<int,int> idx_to_xy(long long idx, int W) {
   return {(int)(idx % W), (int)(idx / W)};
 }
 
-// 从 CSV 取前 N 条，生成 MovingAI .scen；列名优先 (goal_1, goal_2)，否则 (current_location, goal_1)
+// csv to scen
 inline size_t csv_to_scen(const std::string& map_path,
                           const std::string& csv_path,
                           const std::string& out_scen,
