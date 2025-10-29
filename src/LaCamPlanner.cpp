@@ -1,5 +1,6 @@
 #include "Planner.h"
 #include "CsvToScen.h"
+#include "GridToMap.h"   
 #include <filesystem>
 #include <cstdlib>
 #include <iostream>
@@ -18,8 +19,16 @@ struct LaCAMPlanner final : Planner {
       std::cerr << "[LaCAM] run_batches.py not found: " << runner << "\n";
       return 1;
     }
-    if (!std::filesystem::exists(o.map_file)) {
-      std::cerr << "[LaCAM] map not found: " << o.map_file << "\n";
+    // 支持 .grid：自动转 .map
+    std::string map_for_lacam;
+    try {
+     map_for_lacam = ensure_map_for_lacam(o.map_file);
+    } catch (const std::exception& e) {
+     std::cerr << "[LaCAM] map/grid prepare failed: " << e.what() << "\n";
+      return 1;
+    }
+    if (!std::filesystem::exists(map_for_lacam)) {
+      std::cerr << "[LaCAM] map not found: " << map_for_lacam << "\n";
       return 1;
     }
     if (!std::filesystem::exists(o.input_task_csv)) {
@@ -33,7 +42,7 @@ struct LaCAMPlanner final : Planner {
       scen = (std::filesystem::temp_directory_path() / "unified_tmp.scen").string();
     }
     try {
-      size_t n = csv_to_scen(o.map_file, o.input_task_csv, scen, o.num_agents);
+      size_t n = csv_to_scen(map_for_lacam, o.input_task_csv, scen, o.num_agents);
       if (n==0) { std::cerr << "[LaCAM] empty scen generated\n"; return 1; }
       std::cerr << "[LaCAM] SCEN generated: " << scen << " ("<<n<<" tasks)\n";
     } catch (const std::exception& e) {
@@ -45,7 +54,7 @@ struct LaCAMPlanner final : Planner {
     std::string cmd =
       std::string("PYTHONUNBUFFERED=1 python ")
       + q(runner)
-      + " --map " + q(o.map_file)
+      + " --map " + q(map_for_lacam)
       + " --scen " + q(scen)
       + " --agents " + std::to_string(o.num_agents)
       + " --batch-size " + std::to_string(o.batch_size)
