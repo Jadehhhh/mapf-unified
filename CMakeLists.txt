@@ -39,7 +39,7 @@ endif()
 add_executable(unified_runner
   src/main_unified.cpp
   src/RHCRPlanner.cpp
-  src/LaCAMPlanner.cpp
+  src/LaCamPlanner.cpp
 )
 
 # put executable in the build
