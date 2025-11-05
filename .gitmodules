@@ -1,0 +1,6 @@
+[submodule "extern/RHCR"]
+	path = extern/RHCR
+	url = git@github.com:Jadehhhh/RHCR.git
+[submodule "extern/LaCAM"]
+	path = extern/LaCAM
+	url = git@github.com:Jadehhhh/LaCAM.git
