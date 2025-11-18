@@ -50,7 +50,7 @@ struct LaCAMPlanner final : Planner {
       return 1;
     }
 
-    // 2) 调 Python 批跑器 + bridge
+    // 2) use Python run_batches + bridge
     std::string cmd =
       std::string("PYTHONUNBUFFERED=1 python ")
       + q(runner)
